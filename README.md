@@ -26,7 +26,7 @@
 
 [05/05/2021] Claim Challenges. Solve captcha by using `https://2captcha.com?from=11528745`.
 
-[![SC2 Video](http://i3.ytimg.com/vi/T8lYvjk_PEM/maxresdefault.jpg)](https://www.youtube.com/watch?v=T8lYvjk_PEM)
+[![SC2 Video](http://i3.ytimg.com/vi/-WruUpRYzEw/maxresdefault.jpg)](https://www.youtube.com/watch?v=-WruUpRYzEw)
 
 ###### Please do step by step to use:
 
@@ -72,7 +72,7 @@
 
 [05/05/2021] Nhận thưởng Challenges. Giải captcha bằng `https://2captcha.com?from=11528745`.
 
-[![SC2 Video](http://i3.ytimg.com/vi/T8lYvjk_PEM/maxresdefault.jpg)](https://www.youtube.com/watch?v=T8lYvjk_PEM)
+[![SC2 Video](http://i3.ytimg.com/vi/-WruUpRYzEw/maxresdefault.jpg)](https://www.youtube.com/watch?v=-WruUpRYzEw)
 
 ###### Vui lòng thực hiện theo các bước sau:
 
