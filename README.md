@@ -26,6 +26,8 @@
 
 [05/05/2021] Claim Challenges. Solve captcha by using `https://2captcha.com?from=11528745`.
 
+[![SC2 Video](http://i3.ytimg.com/vi/T8lYvjk_PEM/maxresdefault.jpg)](https://www.youtube.com/watch?v=T8lYvjk_PEM)
+
 ###### Please do step by step to use:
 
 1. Install language **Python 3.9.x** https://www.python.org/downloads/.
@@ -66,9 +68,11 @@
 
 [19/04/2021] Làm nhiệm vụ Shortlink.
 
+[![SC2 Video](http://i3.ytimg.com/vi/L7G-1abgmwA/maxresdefault.jpg)](https://www.youtube.com/watch?v=L7G-1abgmwA)
+
 [05/05/2021] Nhận thưởng Challenges. Giải captcha bằng `https://2captcha.com?from=11528745`.
 
-[![SC2 Video](http://i3.ytimg.com/vi/L7G-1abgmwA/maxresdefault.jpg)](https://www.youtube.com/watch?v=L7G-1abgmwA)
+[![SC2 Video](http://i3.ytimg.com/vi/T8lYvjk_PEM/maxresdefault.jpg)](https://www.youtube.com/watch?v=T8lYvjk_PEM)
 
 ###### Vui lòng thực hiện theo các bước sau:
 
