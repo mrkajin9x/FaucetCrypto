@@ -144,7 +144,8 @@ def ClaimFaucet(faucetcrypto_cookies):
                             Notification(app, 'Claimed faucet!')
                             break
                         elif 'You have failed to complete the captcha many times' in browser.page_source:
-                            raise Exception('Failed to complete the captcha many times')
+                            Notification(app, 'Failed to complete the captcha many times!')
+                            break
                         elif 'Please click on the similar buttons in the following order' in browser.page_source:
                             winsound.Beep(999, 500)
                             Notification(app, 'Please solve captcha!')
@@ -198,7 +199,8 @@ def ClaimFaucet(faucetcrypto_cookies):
                                     except:
                                         pass
                         if time.time() - time_start > 360:
-                            raise Exception('Timeout')
+                            Notification(app, 'Timeout.')
+                            break
                     time.sleep(1)
                 else:
                     Notification(app, 'Not ready to claim!')
@@ -234,93 +236,98 @@ def DoPtcAds(faucetcrypto_cookies):
                 browser.get(path + '/ptc/list')
                 time.sleep(1)
                 RemoveElements(browser)
+                havePtcAds = True
                 try:
                     browser.find_element_by_xpath(
                         "//a[contains(@href, 'https://faucetcrypto.com/task/ptc-advertisement/')]").click()
                     time.sleep(1)
                 except:
+                    havePtcAds = False
                     delay_time = 3600
-                    raise Exception("No Ptc Ads to click!")
-                time_start = time.time()
-                while True:
-                    try:
-                        if len(browser.window_handles) > 1:
-                            target_tag = None
-                            for handle in browser.window_handles:
-                                browser.switch_to.window(handle)
-                                if domain not in browser.current_url:
-                                    browser.close()
-                                else:
-                                    target_tag = handle
-                            browser.switch_to.window(target_tag)
-                        else:
-                            browser.switch_to.window(browser.current_window_handle)
-                    except:
-                        pass
-                    if 'You have failed to complete the captcha many times' in browser.page_source:
-                        delay_time = 1800
-                        raise Exception('Failed to complete the captcha many times')
-                    elif 'Please click on the similar buttons in the following order' in browser.page_source:
-                        winsound.Beep(999, 500)
-                        Notification(app, 'Please solve captcha!')
-                        time.sleep(60)
-                        if 'Get Reward' in browser.page_source:
+                    Notification(app, 'No Ptc Ads to click!')
+                if havePtcAds:
+                    time_start = time.time()
+                    while True:
+                        try:
+                            if len(browser.window_handles) > 1:
+                                target_tag = None
+                                for handle in browser.window_handles:
+                                    browser.switch_to.window(handle)
+                                    if domain not in browser.current_url:
+                                        browser.close()
+                                    else:
+                                        target_tag = handle
+                                browser.switch_to.window(target_tag)
+                            else:
+                                browser.switch_to.window(browser.current_window_handle)
+                        except:
+                            pass
+                        if 'You have failed to complete the captcha many times' in browser.page_source:
+                            delay_time = 1500
+                            Notification(app, 'Failed to complete the captcha many times!')
                             break
-                    elif 'widget containing checkbox for hCaptcha security challenge' in browser.page_source:
-                        if autoCaptcha:
-                            hcaptcha = browser.find_element_by_xpath(
-                                "//iframe[contains(@title, 'widget containing checkbox for hCaptcha security challenge')]")
-                            sitekey = ''
-                            for fragment in urlparse.urlparse(hcaptcha.get_attribute('src')).fragment.split('&'):
-                                if 'sitekey=' in fragment:
-                                    sitekey = fragment.split('=')[1]
-                                    break
-                            token = hc.HCaptcha(sitekey, browser.current_url)
-                            task_id = str(browser.current_url).split('/').pop()
-                            xsrf_token = browser.get_cookie('XSRF-TOKEN')['value']
-                            faucet_crypto_session = browser.get_cookie('faucet_crypto_session')['value']
-                            link = 'https://faucetcrypto.com/task/generate-link'
-                            cookies = {
-                                'XSRF-TOKEN': xsrf_token,
-                                'faucet_crypto_session': faucet_crypto_session,
-                            }
-                            headers = {
-                                'x-xsrf-token': xsrf_token.replace('%3D', '='),
-                            }
-                            data = {
-                                'type': 'ptc_advertisement',
-                                'task_id': task_id,
-                                'captcha': token,
-                            }
-                            res = requests.post(link, cookies=cookies, headers=headers, data=data, timeout=30)
-                            browser.execute_script('window.location.href = arguments[0];', res.url)
-                        else:
+                        elif 'Please click on the similar buttons in the following order' in browser.page_source:
                             winsound.Beep(999, 500)
                             Notification(app, 'Please solve captcha!')
                             time.sleep(60)
                             if 'Get Reward' in browser.page_source:
                                 break
-                    elif 'Page Expired' in browser.page_source:
-                        browser.refresh()
-                    elif 'Get Reward' in browser.page_source:
-                        browser.execute_script('window.scrollTo(0,document.body.scrollHeight);')
-                        buttons = browser.find_elements_by_xpath("//button[contains(text(), 'Get Reward')]")
-                        if len(buttons) > 0:
-                            for button in buttons:
-                                try:
-                                    button.click()
-                                except:
-                                    pass
-                    elif 'Continue' in browser.page_source:
-                        try:
-                            browser.find_element_by_xpath("//a[contains(text(), 'Continue')]").click()
-                            Notification(app, 'Completed task!')
+                        elif 'widget containing checkbox for hCaptcha security challenge' in browser.page_source:
+                            if autoCaptcha:
+                                hcaptcha = browser.find_element_by_xpath(
+                                    "//iframe[contains(@title, 'widget containing checkbox for hCaptcha security challenge')]")
+                                sitekey = ''
+                                for fragment in urlparse.urlparse(hcaptcha.get_attribute('src')).fragment.split('&'):
+                                    if 'sitekey=' in fragment:
+                                        sitekey = fragment.split('=')[1]
+                                        break
+                                token = hc.HCaptcha(sitekey, browser.current_url)
+                                task_id = str(browser.current_url).split('/').pop()
+                                xsrf_token = browser.get_cookie('XSRF-TOKEN')['value']
+                                faucet_crypto_session = browser.get_cookie('faucet_crypto_session')['value']
+                                link = 'https://faucetcrypto.com/task/generate-link'
+                                cookies = {
+                                    'XSRF-TOKEN': xsrf_token,
+                                    'faucet_crypto_session': faucet_crypto_session,
+                                }
+                                headers = {
+                                    'x-xsrf-token': xsrf_token.replace('%3D', '='),
+                                }
+                                data = {
+                                    'type': 'ptc_advertisement',
+                                    'task_id': task_id,
+                                    'captcha': token,
+                                }
+                                res = requests.post(link, cookies=cookies, headers=headers, data=data, timeout=30)
+                                browser.execute_script('window.location.href = arguments[0];', res.url)
+                            else:
+                                winsound.Beep(999, 500)
+                                Notification(app, 'Please solve captcha!')
+                                time.sleep(60)
+                                if 'Get Reward' in browser.page_source:
+                                    break
+                        elif 'Page Expired' in browser.page_source:
+                            browser.refresh()
+                        elif 'Get Reward' in browser.page_source:
+                            browser.execute_script('window.scrollTo(0,document.body.scrollHeight);')
+                            buttons = browser.find_elements_by_xpath("//button[contains(text(), 'Get Reward')]")
+                            if len(buttons) > 0:
+                                for button in buttons:
+                                    try:
+                                        button.click()
+                                    except:
+                                        pass
+                        elif 'Continue' in browser.page_source:
+                            try:
+                                browser.find_element_by_xpath("//a[contains(text(), 'Continue')]").click()
+                                Notification(app, 'Completed task!')
+                                break
+                            except:
+                                pass
+                        if time.time() - time_start > 360:
+                            Notification(app, 'Timeout.')
                             break
-                        except:
-                            pass
-                    if time.time() - time_start > 360:
-                        raise Exception('Timeout')
-                    time.sleep(1)
+                        time.sleep(1)
             except Exception as ex:
                 print('%s has exception:\n%s!' % (app, ex))
                 Notification(app, '%s has exception:\n%s!' % (app, ex))
@@ -354,6 +361,7 @@ def DoShortlink(faucetcrypto_cookies):
                 browser.get(path + '/shortlink/list')
                 time.sleep(1)
                 RemoveElements(browser)
+                haveShortlink = True
                 while True:
                     try:
                         windows_count = len(browser.window_handles)
@@ -378,105 +386,112 @@ def DoShortlink(faucetcrypto_cookies):
                         elif 'https://faucetcrypto.com/task/shortlink/short-fg' in browser.page_source:
                             browser.get('https://faucetcrypto.com/task/shortlink/short-fg')
                         else:
-                            raise Exception("No Shortlink to click!")
+                            haveShortlink = False
+                            delay_time = 3600
+                            Notification(app, 'No Shortlink to click!')
                         time.sleep(1)
-                        break
                     except:
+                        haveShortlink = False
                         delay_time = 3600
-                        raise Exception("No Shortlink to click!")
-                time_start = time.time()
-                is_shortlink_page = False
-                step_count = 0
-                while True:
-                    try:
-                        if len(browser.window_handles) > 1:
-                            target_tag = None
-                            for handle in browser.window_handles:
-                                browser.switch_to.window(handle)
-                                if (domain not in browser.current_url and not is_shortlink_page) or (
-                                        domain1 not in browser.current_url and is_shortlink_page):
-                                    browser.close()
-                                else:
-                                    target_tag = handle
-                            browser.switch_to.window(target_tag)
-                        else:
-                            browser.switch_to.window(browser.current_window_handle)
-                    except:
-                        pass
-                    if 'You have failed to complete the captcha many times' in browser.page_source:
-                        delay_time = 1800
-                        raise Exception('Failed to complete the captcha many times')
-                    elif 'Please click on the similar buttons in the following order' in browser.page_source:
-                        winsound.Beep(999, 500)
-                        Notification(app, 'Please solve captcha!')
-                        time.sleep(60)
-                        if 'Get Reward' in browser.page_source:
+                        Notification(app, 'No Shortlink to click!')
+                    finally:
+                        break
+                if haveShortlink:
+                    time_start = time.time()
+                    is_shortlink_page = False
+                    step_count = 0
+                    while True:
+                        try:
+                            if len(browser.window_handles) > 1:
+                                target_tag = None
+                                for handle in browser.window_handles:
+                                    browser.switch_to.window(handle)
+                                    if (domain not in browser.current_url and not is_shortlink_page) or (
+                                            domain1 not in browser.current_url and is_shortlink_page):
+                                        browser.close()
+                                    else:
+                                        target_tag = handle
+                                browser.switch_to.window(target_tag)
+                            else:
+                                browser.switch_to.window(browser.current_window_handle)
+                        except:
+                            pass
+                        if 'You have failed to complete the captcha many times' in browser.page_source:
+                            delay_time = 1500
+                            Notification(app, 'Failed to complete the captcha many times!')
                             break
-                    elif 'widget containing checkbox for hCaptcha security challenge' in browser.page_source:
-                        if autoCaptcha:
-                            hcaptcha = browser.find_element_by_xpath(
-                                "//iframe[contains(@title, 'widget containing checkbox for hCaptcha security challenge')]")
-                            sitekey = ''
-                            for fragment in urlparse.urlparse(hcaptcha.get_attribute('src')).fragment.split('&'):
-                                if 'sitekey=' in fragment:
-                                    sitekey = fragment.split('=')[1]
-                                    break
-                            token = hc.HCaptcha(sitekey, browser.current_url)
-                            task_id = str(browser.current_url).split('/').pop()
-                            xsrf_token = browser.get_cookie('XSRF-TOKEN')['value']
-                            faucet_crypto_session = browser.get_cookie('faucet_crypto_session')['value']
-                            link = 'https://faucetcrypto.com/task/generate-link'
-                            cookies = {
-                                'XSRF-TOKEN': xsrf_token,
-                                'faucet_crypto_session': faucet_crypto_session,
-                            }
-                            headers = {
-                                'x-xsrf-token': xsrf_token.replace('%3D', '='),
-                            }
-                            data = {
-                                'type': 'shortlink',
-                                'task_id': task_id,
-                                'captcha': token,
-                            }
-                            res = requests.post(link, cookies=cookies, headers=headers, data=data, timeout=30)
-                            browser.execute_script('window.location.href = arguments[0];',
-                                                   res.headers['X-Inertia-Location'])
-                        else:
+                        elif 'Please click on the similar buttons in the following order' in browser.page_source:
                             winsound.Beep(999, 500)
                             Notification(app, 'Please solve captcha!')
                             time.sleep(60)
                             if 'Get Reward' in browser.page_source:
                                 break
-                    elif 'Page Expired' in browser.page_source:
-                        browser.refresh()
-                    elif 'Get Reward' in browser.page_source:
-                        browser.execute_script('window.scrollTo(0,document.body.scrollHeight);')
-                        buttons = browser.find_elements_by_xpath("//button[contains(text(), 'Get Reward')]")
-                        if len(buttons) > 0:
-                            for button in buttons:
-                                try:
-                                    button.click()
-                                except:
-                                    pass
-                    elif '<span class="text-primary" id="timer">?</span>' in browser.page_source:
-                        try:
-                            browser.find_element_by_xpath(
-                                "//button[contains(text(), 'Show Timer / Click Here')]").click()
-                            is_shortlink_page = True
-                        except:
-                            pass
-                    elif '<span class="text-primary" id="timer">0</span>' in browser.page_source:
-                        try:
-                            browser.find_element_by_xpath("//button[contains(text(), 'Continue')]").click()
-                            step_count += 1
-                            if step_count == 3:
-                                Notification(app, 'Complete Shortlink task!')
-                                break
-                        except:
-                            pass
-                    if time.time() - time_start > 360:
-                        raise Exception('Timeout')
-                    time.sleep(1)
+                        elif 'widget containing checkbox for hCaptcha security challenge' in browser.page_source:
+                            if autoCaptcha:
+                                hcaptcha = browser.find_element_by_xpath(
+                                    "//iframe[contains(@title, 'widget containing checkbox for hCaptcha security challenge')]")
+                                sitekey = ''
+                                for fragment in urlparse.urlparse(hcaptcha.get_attribute('src')).fragment.split('&'):
+                                    if 'sitekey=' in fragment:
+                                        sitekey = fragment.split('=')[1]
+                                        break
+                                token = hc.HCaptcha(sitekey, browser.current_url)
+                                task_id = str(browser.current_url).split('/').pop()
+                                xsrf_token = browser.get_cookie('XSRF-TOKEN')['value']
+                                faucet_crypto_session = browser.get_cookie('faucet_crypto_session')['value']
+                                link = 'https://faucetcrypto.com/task/generate-link'
+                                cookies = {
+                                    'XSRF-TOKEN': xsrf_token,
+                                    'faucet_crypto_session': faucet_crypto_session,
+                                }
+                                headers = {
+                                    'x-xsrf-token': xsrf_token.replace('%3D', '='),
+                                }
+                                data = {
+                                    'type': 'shortlink',
+                                    'task_id': task_id,
+                                    'captcha': token,
+                                }
+                                res = requests.post(link, cookies=cookies, headers=headers, data=data, timeout=30)
+                                browser.execute_script('window.location.href = arguments[0];',
+                                                       res.headers['X-Inertia-Location'])
+                            else:
+                                winsound.Beep(999, 500)
+                                Notification(app, 'Please solve captcha!')
+                                time.sleep(60)
+                                if 'Get Reward' in browser.page_source:
+                                    break
+                        elif 'Page Expired' in browser.page_source:
+                            browser.refresh()
+                        elif 'Get Reward' in browser.page_source:
+                            browser.execute_script('window.scrollTo(0,document.body.scrollHeight);')
+                            buttons = browser.find_elements_by_xpath("//button[contains(text(), 'Get Reward')]")
+                            if len(buttons) > 0:
+                                for button in buttons:
+                                    try:
+                                        button.click()
+                                    except:
+                                        pass
+                        elif '<span class="text-primary" id="timer">?</span>' in browser.page_source:
+                            try:
+                                browser.find_element_by_xpath(
+                                    "//button[contains(text(), 'Show Timer / Click Here')]").click()
+                                is_shortlink_page = True
+                            except:
+                                pass
+                        elif '<span class="text-primary" id="timer">0</span>' in browser.page_source:
+                            try:
+                                browser.find_element_by_xpath("//button[contains(text(), 'Continue')]").click()
+                                step_count += 1
+                                if step_count == 3:
+                                    Notification(app, 'Complete Shortlink task!')
+                                    break
+                            except:
+                                pass
+                        if time.time() - time_start > 360:
+                            Notification(app, 'Timeout.')
+                            break
+                        time.sleep(1)
             except Exception as ex:
                 print('%s has exception:\n%s!' % (app, ex))
                 Notification(app, '%s has exception:\n%s!' % (app, ex))
@@ -542,7 +557,8 @@ def DoOfferwalls_AsiaMag(faucetcrypto_cookies):
                         pass
                     if 'This IP/User reached daily maximum sessions !' in browser.page_source:
                         delay_time = 43200
-                        raise Exception('IP/Use reached daily maximum sessions')
+                        Notification(app, 'IP/Use reached daily maximum sessions.')
+                        break
                     elif 'Thanks for your participation !</h1>' in browser.page_source:
                         Notification(app, "Completed offer!")
                         break
